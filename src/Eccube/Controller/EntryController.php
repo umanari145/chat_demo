@@ -68,6 +68,7 @@ class EntryController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             switch ($request->get('mode')) {
                 case 'confirm':
+
                     $builder->setAttribute('freeze', true);
                     $form = $builder->getForm();
                     $form->handleRequest($request);
@@ -77,6 +78,13 @@ class EntryController extends AbstractController
                     ));
 
                 case 'complete':
+
+                    /**
+                     * TODO: nameは必須なので一時的に適当な名前を付ける
+                     */
+                    $Customer->setName01('chat');
+                    $Customer->setName02('tarou');
+
                     $Customer
                         ->setSalt(
                             $app['eccube.repository.customer']->createSalt(5)
@@ -91,7 +99,6 @@ class EntryController extends AbstractController
                     $CustomerAddress = new \Eccube\Entity\CustomerAddress();
                     $CustomerAddress
                         ->setFromCustomer($Customer);
-
                     $app['orm.em']->persist($Customer);
                     $app['orm.em']->persist($CustomerAddress);
                     $app['orm.em']->flush();
