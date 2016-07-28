@@ -46,11 +46,6 @@ class ProductController
     {
         $BaseInfo = $app['eccube.repository.base_info']->get();
 
-        // Doctrine SQLFilter
-        if ($BaseInfo->getNostockHidden() === Constant::ENABLED) {
-            $app['orm.em']->getFilters()->enable('nostock_hidden');
-        }
-
         // handleRequestは空のqueryの場合は無視するため
         if ($request->getMethod() === 'GET') {
             $request->query->set('pageno', $request->query->get('pageno', ''));

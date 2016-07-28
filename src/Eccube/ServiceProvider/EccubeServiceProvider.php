@@ -47,49 +47,18 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['view'] = $app->share(function () use ($app) {
             return $app['twig'];
         });
-        $app['eccube.service.cart'] = $app->share(function () use ($app) {
-            return new \Eccube\Service\CartService($app);
-        });
-        $app['eccube.service.order'] = $app->share(function () use ($app) {
-            return new \Eccube\Service\OrderService($app);
-        });
-        $app['eccube.service.tax_rule'] = $app->share(function () use ($app) {
-            return new \Eccube\Service\TaxRuleService($app['eccube.repository.tax_rule']);
-        });
         $app['eccube.service.plugin'] = $app->share(function () use ($app) {
             return new \Eccube\Service\PluginService($app);
         });
         $app['eccube.service.mail'] = $app->share(function () use ($app) {
             return new \Eccube\Service\MailService($app);
         });
-        $app['eccube.service.csv.export'] = $app->share(function () use ($app) {
-            $csvService = new \Eccube\Service\CsvExportService();
-            $csvService->setEntityManager($app['orm.em']);
-            $csvService->setConfig($app['config']);
-            $csvService->setCsvRepository($app['eccube.repository.csv']);
-            $csvService->setCsvTypeRepository($app['eccube.repository.master.csv_type']);
-            $csvService->setOrderRepository($app['eccube.repository.order']);
-            $csvService->setCustomerRepository($app['eccube.repository.customer']);
-            $csvService->setProductRepository($app['eccube.repository.product']);
-
-            return $csvService;
-        });
-        $app['eccube.service.shopping'] = $app->share(function () use ($app) {
-            return new \Eccube\Service\ShoppingService($app, $app['eccube.service.cart'], $app['eccube.service.order']);
-        });
-
         // Repository
         $app['eccube.repository.master.authority'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\Authority');
         });
         $app['eccube.repository.master.tag'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\Tag');
-        });
-        $app['eccube.repository.master.pref'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\Master\Pref');
-        });
-        $app['eccube.repository.master.sex'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\Master\Sex');
         });
         $app['eccube.repository.master.disp'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\Disp');
@@ -109,25 +78,6 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.repository.master.csv_type'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\CsvType');
         });
-
-        $app['eccube.repository.delivery'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\Delivery');
-        });
-        $app['eccube.repository.delivery_date'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\DeliveryDate');
-        });
-        $app['eccube.repository.delivery_fee'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\DeliveryFee');
-        });
-        $app['eccube.repository.delivery_time'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\DeliveryTime');
-        });
-        $app['eccube.repository.payment'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\Payment');
-        });
-        $app['eccube.repository.payment_option'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\PaymentOption');
-        });
         $app['eccube.repository.category'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Category');
         });
@@ -144,9 +94,6 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $memberRepository = $app['orm.em']->getRepository('Eccube\Entity\Member');
             $memberRepository->setEncoderFactorty($app['security.encoder_factory']);
             return $memberRepository;
-        });
-        $app['eccube.repository.order'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\Order');
         });
         $app['eccube.repository.product'] = $app->share(function () use ($app) {
             $productRepository = $app['orm.em']->getRepository('Eccube\Entity\Product');
@@ -173,12 +120,6 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.repository.base_info'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\BaseInfo');
         });
-        $app['eccube.repository.tax_rule'] = $app->share(function () use ($app) {
-            $taxRuleRepository = $app['orm.em']->getRepository('Eccube\Entity\TaxRule');
-            $taxRuleRepository->setApplication($app);
-
-            return $taxRuleRepository;
-        });
         $app['eccube.repository.page_layout'] = $app->share(function () use ($app) {
             $pageLayoutRepository = $app['orm.em']->getRepository('Eccube\Entity\PageLayout');
             $pageLayoutRepository->setApplication($app);
@@ -190,18 +131,6 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $blockRepository->setApplication($app);
 
             return $blockRepository;
-        });
-        $app['eccube.repository.order'] = $app->share(function () use ($app) {
-            $orderRepository = $app['orm.em']->getRepository('Eccube\Entity\Order');
-            $orderRepository->setApplication($app);
-
-            return $orderRepository;
-        });
-        $app['eccube.repository.customer_address'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\CustomerAddress');
-        });
-        $app['eccube.repository.shipping'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\Shipping');
         });
         $app['eccube.repository.customer_status'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\CustomerStatus');
@@ -267,31 +196,22 @@ class EccubeServiceProvider implements ServiceProviderInterface
             return $extensions;
         }));
         $app['form.types'] = $app->share($app->extend('form.types', function ($types) use ($app) {
+            $types[] = new \Eccube\Form\Type\RepeatedEmailType();
+            $types[] = new \Eccube\Form\Type\RepeatedPasswordType($app['config']);
             $types[] = new \Eccube\Form\Type\NameType($app['config']);
             $types[] = new \Eccube\Form\Type\KanaType($app['config']);
             $types[] = new \Eccube\Form\Type\TelType($app['config']);
             $types[] = new \Eccube\Form\Type\FaxType(); // 削除予定
             $types[] = new \Eccube\Form\Type\ZipType($app['config']);
             $types[] = new \Eccube\Form\Type\AddressType($app['config']);
-            $types[] = new \Eccube\Form\Type\RepeatedEmailType();
-            $types[] = new \Eccube\Form\Type\RepeatedPasswordType($app['config']);
-            $types[] = new \Eccube\Form\Type\PriceType($app['config']);
 
             $types[] = new \Eccube\Form\Type\MasterType();
-            $types[] = new \Eccube\Form\Type\Master\JobType();
             $types[] = new \Eccube\Form\Type\Master\CustomerStatusType();
-            $types[] = new \Eccube\Form\Type\Master\OrderStatusType();
-            $types[] = new \Eccube\Form\Type\Master\CalcRuleType();
-            $types[] = new \Eccube\Form\Type\Master\SexType();
-            $types[] = new \Eccube\Form\Type\Master\DispType();
-            $types[] = new \Eccube\Form\Type\Master\PrefType();
             $types[] = new \Eccube\Form\Type\Master\ProductTypeType();
             $types[] = new \Eccube\Form\Type\Master\ProductListMaxType();
             $types[] = new \Eccube\Form\Type\Master\ProductListOrderByType();
             $types[] = new \Eccube\Form\Type\Master\PageMaxType();
             $types[] = new \Eccube\Form\Type\Master\CsvType();
-            $types[] = new \Eccube\Form\Type\Master\DeliveryDateType();
-            $types[] = new \Eccube\Form\Type\Master\PaymentType();
             $types[] = new \Eccube\Form\Type\Master\MailTemplateType();
             $types[] = new \Eccube\Form\Type\Master\CategoryType();
             $types[] = new \Eccube\Form\Type\Master\TagType();
@@ -302,18 +222,11 @@ class EccubeServiceProvider implements ServiceProviderInterface
                 $types[] = new \Eccube\Form\Type\AddCartType($app['config'], $app['security'], $app['eccube.repository.customer_favorite_product']);
             }
             $types[] = new \Eccube\Form\Type\SearchProductType();
-            $types[] = new \Eccube\Form\Type\OrderSearchType($app);
-            $types[] = new \Eccube\Form\Type\ShippingItemType($app);
-            $types[] = new \Eccube\Form\Type\ShippingMultipleType($app);
-            $types[] = new \Eccube\Form\Type\ShippingMultipleItemType($app);
-            $types[] = new \Eccube\Form\Type\ShoppingType();
 
             // front
             $types[] = new \Eccube\Form\Type\Front\EntryType($app['config']);
             $types[] = new \Eccube\Form\Type\Front\ContactType($app['config']);
             $types[] = new \Eccube\Form\Type\Front\NonMemberType($app['config']);
-            $types[] = new \Eccube\Form\Type\Front\ShoppingShippingType();
-            $types[] = new \Eccube\Form\Type\Front\CustomerAddressType($app['config']);
             $types[] = new \Eccube\Form\Type\Front\ForgotType();
             $types[] = new \Eccube\Form\Type\Front\CustomerLoginType($app['session']);
 

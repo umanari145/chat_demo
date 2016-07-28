@@ -92,135 +92,17 @@ class MypageController extends AbstractController
             'Eccube\Entity\ProductClass',
         ));
 
-        // 購入処理中/決済処理中ステータスの受注を非表示にする.
-        $app['orm.em']
-            ->getFilters()
-            ->enable('incomplete_order_status_hidden');
-
-        // paginator
-        $qb = $app['eccube.repository.order']->getQueryBuilderByCustomer($Customer);
-
         $event = new EventArgs(
             array(
-                'qb' => $qb,
                 'Customer' => $Customer,
             ),
             $request
         );
         $app['eccube.event.dispatcher']->dispatch(EccubeEvents::FRONT_MYPAGE_MYPAGE_INDEX_SEARCH, $event);
 
-        $pagination = $app['paginator']()->paginate(
-            $qb,
-            $request->get('pageno', 1),
-            $app['config']['search_pmax']
-        );
-
-        return $app->render('Mypage/index.twig', array(
-            'pagination' => $pagination,
-        ));
+        return $app->render('Mypage/index.twig', array());
     }
 
-    /**
-     * 購入履歴詳細を表示する.
-     *
-     * @param Application $app
-     * @param Request $request
-     * @param $id
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function history(Application $app, Request $request, $id)
-    {
-        /* @var $softDeleteFilter \Eccube\Doctrine\Filter\SoftDeleteFilter */
-        $softDeleteFilter = $app['orm.em']->getFilters()->getFilter('soft_delete');
-        $softDeleteFilter->setExcludes(array(
-            'Eccube\Entity\ProductClass',
-        ));
-
-        $Order = $app['eccube.repository.order']->findOneBy(array(
-            'id' => $id,
-            'Customer' => $app->user(),
-        ));
-
-        $event = new EventArgs(
-            array(
-                'Order' => $Order,
-            ),
-            $request
-        );
-        $app['eccube.event.dispatcher']->dispatch(EccubeEvents::FRONT_MYPAGE_MYPAGE_HISTORY_INITIALIZE, $event);
-
-        $Order = $event->getArgument('Order');
-
-        if (!$Order) {
-            throw new NotFoundHttpException();
-        }
-
-        return $app->render('Mypage/history.twig', array(
-            'Order' => $Order,
-        ));
-    }
-
-    /**
-     * 再購入を行う.
-     *
-     * @param Application $app
-     * @param Request $request
-     * @param $id
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     */
-    public function order(Application $app, Request $request, $id)
-    {
-        $this->isTokenValid($app);
-
-        $Customer = $app->user();
-
-        /* @var $Order \Eccube\Entity\Order */
-        $Order = $app['eccube.repository.order']->findOneBy(array(
-            'id' => $id,
-            'Customer' => $Customer,
-        ));
-
-        $event = new EventArgs(
-            array(
-                'Order' => $Order,
-                'Customer' => $Customer,
-            ),
-            $request
-        );
-        $app['eccube.event.dispatcher']->dispatch(EccubeEvents::FRONT_MYPAGE_MYPAGE_ORDER_INITIALIZE, $event);
-
-        if (!$Order) {
-            throw new NotFoundHttpException();
-        }
-
-        foreach ($Order->getOrderDetails() as $OrderDetail) {
-            try {
-                if ($OrderDetail->getProduct() &&
-                    $OrderDetail->getProductClass()) {
-                    $app['eccube.service.cart']->addProduct($OrderDetail->getProductClass()->getId(), $OrderDetail->getQuantity())->save();
-                } else {
-                    $app->addRequestError('cart.product.delete');
-                }
-            } catch (CartException $e) {
-                $app->addRequestError($e->getMessage());
-            }
-        }
-
-        $event = new EventArgs(
-            array(
-                'Order' => $Order,
-                'Customer' => $Customer,
-            ),
-            $request
-        );
-        $app['eccube.event.dispatcher']->dispatch(EccubeEvents::FRONT_MYPAGE_MYPAGE_ORDER_COMPLETE, $event);
-
-        if ($event->getResponse() !== null) {
-            return $event->getResponse();
-        }
-
-        return $app->redirect($app->url('cart'));
-    }
 
     /**
      * お気に入り商品を表示する.

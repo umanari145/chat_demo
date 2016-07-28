@@ -187,6 +187,7 @@ class Application extends ApplicationTrait
         $this->register(new \Eccube\ServiceProvider\ValidatorServiceProvider());
 
         $app = $this;
+
         $this->error(function(\Exception $e, $code) use ($app) {
             if ($app['debug']) {
                 return;
@@ -353,6 +354,7 @@ class Application extends ApplicationTrait
 
         // twigのグローバル変数を定義.
         $app = $this;
+
         $this->on(\Symfony\Component\HttpKernel\KernelEvents::CONTROLLER, function(\Symfony\Component\HttpKernel\Event\FilterControllerEvent $event) use ($app) {
             // ショップ基本情報
             $BaseInfo = $app['eccube.repository.base_info']->get();
