@@ -4146,7 +4146,7 @@ fieldset[disabled] .btn-link:focus {
         width: 25%;
     }
    .local_nav.favorite li {
-        width: 20%;
+        width: 33.3%;
     }
     .historylist_column {
         border-top: 1px solid #ccc;

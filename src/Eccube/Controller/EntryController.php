@@ -96,18 +96,13 @@ class EntryController extends AbstractController
                             $app['eccube.repository.customer']->getUniqueSecretKey($app)
                         );
 
-                    $CustomerAddress = new \Eccube\Entity\CustomerAddress();
-                    $CustomerAddress
-                        ->setFromCustomer($Customer);
                     $app['orm.em']->persist($Customer);
-                    $app['orm.em']->persist($CustomerAddress);
                     $app['orm.em']->flush();
 
                     $event = new EventArgs(
                         array(
                             'form' => $form,
                             'Customer' => $Customer,
-                            'CustomerAddress' => $CustomerAddress,
                         ),
                         $request
                     );
@@ -116,23 +111,7 @@ class EntryController extends AbstractController
                     $activateUrl = $app->url('entry_activate', array('secret_key' => $Customer->getSecretKey()));
 
                     /** @var $BaseInfo \Eccube\Entity\BaseInfo */
-                    $BaseInfo = $app['eccube.repository.base_info']->get();
-                    $activateFlg = $BaseInfo->getOptionCustomerActivate();
-
-                    // 仮会員設定が有効な場合は、確認メールを送信し完了画面表示.
-                    if ($activateFlg) {
-                        // メール送信
-                        $app['eccube.service.mail']->sendCustomerConfirmMail($Customer, $activateUrl);
-
-                        if ($event->hasResponse()) {
-                            return $event->getResponse();
-                        }
-
-                        return $app->redirect($app->url('entry_complete'));
-                    // 仮会員設定が無効な場合は認証URLへ遷移させ、会員登録を完了させる.
-                    } else {
-                        return $app->redirect($activateUrl);
-                    }
+                    return $app->redirect($activateUrl);
             }
         }
 

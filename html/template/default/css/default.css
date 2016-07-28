@@ -433,7 +433,7 @@ body {
 	/* news_area */
 
 	.news_contents {
-		padding: 0 16px 0 0;
+		padding: 0;
 	}
 
 	#news_area .heading01 {

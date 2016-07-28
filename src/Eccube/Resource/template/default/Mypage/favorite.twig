@@ -51,13 +51,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                 <a href="{{ url('product_detail', {'id': Product.id}) }}">
                                     <dl id="favorite_list__detail--{{ Product.id }}">
                                         <dt id="favorite_list__name--{{ Product.id }}" class="item_name" style="height: 22px;"> {{ Product.name }}</dt>
-                                        <dd id="favorite_list__price02_inc_tax--{{ Product.id }}" class="item_price">
-                                            {% if Product.price02_inc_tax_min == Product.price02_inc_tax_max %}
-                                                {{ Product.price02_inc_tax_min|price }}
-                                            {% else %}
-                                                {{ Product.price02_inc_tax_min|price }}～{{ Product.price02_inc_tax_max|price }}
-                                            {% endif %}
-                                        </dd>
                                     </dl>
                                 </a>
                             </div>
