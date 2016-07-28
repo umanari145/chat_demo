@@ -46,18 +46,6 @@ class ContactController
             $user = $app['user'];
             $builder->setData(
                 array(
-                    'name01' => $user->getName01(),
-                    'name02' => $user->getName02(),
-                    'kana01' => $user->getKana01(),
-                    'kana02' => $user->getKana02(),
-                    'zip01' => $user->getZip01(),
-                    'zip02' => $user->getZip02(),
-                    'pref' => $user->getPref(),
-                    'addr01' => $user->getAddr01(),
-                    'addr02' => $user->getAddr02(),
-                    'tel01' => $user->getTel01(),
-                    'tel02' => $user->getTel02(),
-                    'tel03' => $user->getTel03(),
                     'email' => $user->getEmail(),
                 )
             );
