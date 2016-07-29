@@ -66,6 +66,25 @@ class ProductRepository extends EntityRepository
         return $product;
     }
 
+
+    /**
+     * 商品企画と結び付けて商品データを取得
+     *
+     */
+    public function getProductAndProductClass()
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->innerJoin('p.ProductClasses', 'pc');
+
+        $productList = $qb
+            ->getQuery()
+            ->getResult();
+
+        return $productList;
+    }
+
+
+
     /**
      * get query builder.
      *

@@ -53,6 +53,9 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.service.mail'] = $app->share(function () use ($app) {
             return new \Eccube\Service\MailService($app);
         });
+       	$app['eccube.service.scraping'] = $app->share(function () use ($app) {
+            return new \Eccube\Service\ScrapingService($app);
+        });
         // Repository
         $app['eccube.repository.master.authority'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\Authority');

@@ -74,8 +74,6 @@ class FrontControllerProvider implements ControllerProviderInterface
         $c->match('/mypage/change', '\Eccube\Controller\Mypage\ChangeController::index')->bind('mypage_change');
         $c->match('/mypage/change_complete', '\Eccube\Controller\Mypage\ChangeController::complete')->bind('mypage_change_complete');
 
-        $c->match('/mypage/delivery', '\Eccube\Controller\Mypage\DeliveryController::index')->bind('mypage_delivery');
-
         $c->match('/mypage/favorite', '\Eccube\Controller\Mypage\MypageController::favorite')->bind('mypage_favorite');
         $c->delete('/mypage/favorite/{id}/delete', '\Eccube\Controller\Mypage\MypageController::delete')->assert('id', '\d+')->bind('mypage_favorite_delete');
         $c->match('/mypage/history/{id}', '\Eccube\Controller\Mypage\MypageController::history')->bind('mypage_history')->assert('id', '\d+');
@@ -86,6 +84,9 @@ class FrontControllerProvider implements ControllerProviderInterface
         // products
         $c->match('/chatladies/list', '\Eccube\Controller\ProductController::index')->bind('product_list');
         $c->match('/chatladies/detail/{id}', '\Eccube\Controller\ProductController::detail')->bind('product_detail')->assert('id', '\d+');
+
+        //batch
+        $c->match('/scraping', '\Eccube\Controller\ScrapingController::start')->bind('scraping');
 
         return $c;
     }

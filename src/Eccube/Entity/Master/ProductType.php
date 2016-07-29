@@ -29,6 +29,11 @@ namespace Eccube\Entity\Master;
  */
 class ProductType extends \Eccube\Entity\AbstractEntity
 {
+
+    const PRODUCT_TYPE_A = 1;
+
+    const PRODUCT_TYPE_B = 2;
+
     /**
      * @return string
      */

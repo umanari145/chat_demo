@@ -45,4 +45,9 @@ class Constant {
      */
     const TOKEN_NAME = '_token';
 
+    /**
+     * DMM URL
+     */
+    const DMM_URL = "http://www.dmm.co.jp/live/chat/";
+
 }

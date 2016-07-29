@@ -612,7 +612,7 @@ class ProductClass extends \Eccube\Entity\AbstractEntity
     /**
      * Get DeliveryDate
      *
-     * @return \Eccube\Entity\DeliveryDate 
+     * @return \Eccube\Entity\DeliveryDate
      */
     public function getDeliveryDate()
     {
@@ -663,7 +663,7 @@ class ProductClass extends \Eccube\Entity\AbstractEntity
     /**
      * Get ProductStock
      *
-     * @return \Eccube\Entity\ProductStock 
+     * @return \Eccube\Entity\ProductStock
      */
     public function getProductStock()
     {
@@ -691,7 +691,7 @@ class ProductClass extends \Eccube\Entity\AbstractEntity
     /**
      * Get TaxRule
      *
-     * @return \Eccube\Entity\TaxRule 
+     * @return \Eccube\Entity\TaxRule
      */
     public function getTaxRule()
     {

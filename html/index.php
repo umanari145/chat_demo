@@ -24,7 +24,7 @@
 
 require __DIR__.'/../autoload.php';
 
-ini_set('display_errors', 'Off');
+ini_set('display_errors', 'On');
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 
 // see http://silex.sensiolabs.org/doc/web_servers.html#php-5-4
