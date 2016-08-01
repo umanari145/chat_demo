@@ -52,13 +52,30 @@ class ScrapingService
     /** @var \Eccube\Entity\BaseInfo */
     protected $BaseInfo;
 
+    /** @var \Eccube\Entity\Member */
+    protected $Member;
+
+    /** @var \Eccube\Entity\Disp */
+    protected $Disp;
+
+    /** @var \Eccube\Entity\ProductType */
+    protected $ProductType;
+
     /** @var  \Doctrine\ORM\EntityManager */
     protected $em;
 
+
+
     public function __construct(Application $app )
     {
-        $this->app = $app;
+        $this->app      = $app;
         $this->BaseInfo = $app['eccube.repository.base_info']->get();
+
+        //マスター系のデータ
+        $this->Member         = $this->app['eccube.repository.member']->find(2);
+        $this->Disp           = $this->app['eccube.repository.master.disp']->find(\Eccube\Entity\Master\Disp::DISPLAY_SHOW);
+        $this->ProductType    = $this->app['eccube.repository.master.product_type']->find(\Eccube\Entity\Master\ProductType::PRODUCT_TYPE_A);
+
     }
 
     /**
@@ -66,13 +83,12 @@ class ScrapingService
      *
      * 1 girlId => 'ステータス状態'のハッシュを取得
      * 2 girlIdが存在しているか否かの確認し、存在していない場合、登録
-     * 3
-     * 4
      */
     public function action()
     {
 
         $totalGirlHash = $this->getParsedHTMLContents(Constant::DMM_URL);
+
         $totalGirlIdList = array_keys( $totalGirlHash );
 
         $this->isExistGirlAndRegist( $totalGirlIdList );
@@ -125,46 +141,125 @@ class ScrapingService
     private function isExistGirlAndRegist( $totalGirlIdList )
     {
         $chatgirlIdHash = $this->getRegistredChatGirlId();
-
         foreach ( $totalGirlIdList as $girlId ) {
-
             if( isset( $chatgirlIdHash[$girlId]) !== true ) {
                 //idの登録なし
                 $this->registChatGirl( $girlId );
-            } else {
-
             }
         }
 
     }
 
+    /**
+     * チャットレディの登録
+     *
+     * @param unknown $girlId チャットレディID
+     */
     private function registChatGirl( $girlId )
     {
-        $girlId = "739124";
+
         $detailUrl = $this->getChatGirlDetailPageUrl( $girlId );
         $html      = file_get_contents ( $detailUrl );
 
         if (! empty ( $html )) {
-            $dom = \DomDocument::loadHTML ( $html );
-            $xml = simplexml_import_dom ( $dom );
-            $this->getGirlsProperty( $xml );
+            $dom  = \DomDocument::loadHTML ( $html );
+            $xml  = simplexml_import_dom ( $dom );
+            $data = $this->getGirlsProperty( $xml, $girlId );
+            $this->saveProductEntity( $data );
         }
     }
 
-    private function getGirlsProperty( $xml )
+    /**
+     * 必要な情報の取得
+     *
+     * @param unknown $xml xmlデータ
+     * @param string $girlId チャットガールID
+     */
+    private function getGirlsProperty( $xml, $girlId )
     {
+
         $nameEle = $xml->xpath ( '//div[contains(@class,"char-name")]/p[@class="name"]' );
-        $name = $this->getPropertyFromElement( $nameEle );
+        $girlName =( !empty( $this->getPropertyFromElement( $nameEle ))) ? $this->getPropertyFromElement( $nameEle ) :"";
+        $imageUrl =( !empty( $this->getGirlImageURL( $girlId ))) ? $this->getGirlImageURL( $girlId ) : "";
 
-        $imgEle = $xml->xpath ( '//div[@class="cg-tmb"]' );
-        $image = $this->getPropertyFromElement( $imgEle );
+        $data =[
+            'code'      => $girlId,
+            'name'      => $girlName,
+            'image_url' => $imageUrl
+        ];
 
+        return $data;
     }
 
+    /**
+     * データベースにエンティティを登録する
+     *
+     * @param unknown $data
+     */
+    private function saveProductEntity( $data )
+    {
+        $Product      = new \Eccube\Entity\Product();
+        $ProductClass = new \Eccube\Entity\ProductClass();
+        $ProductImage = new \Eccube\Entity\ProductImage();
+
+        $Product
+        ->setDelFlg(Constant::DISABLED)
+        ->addProductClass($ProductClass)
+        ->setStatus($this->Disp)
+        ->setName( $data['name'])
+        ->setCreator($this->Member)
+        ->addProductImage( $ProductImage);
+
+        $ProductClass
+        ->setProductType($this->ProductType)
+        ->setPrice01(0)
+        ->setPrice02(0)
+        ->setCode( $data['code'])
+        ->setDelFlg(Constant::DISABLED)
+        ->setStockUnlimited(true)
+        ->setProduct($Product)
+        ->setCreator($this->Member);
+
+        $ProductImage
+        ->setProduct($Product)
+        ->setFileName($data['image_url'])
+        ->setRank(1)
+        ->setCreator($this->Member);
+
+        $this->app['orm.em']->persist($ProductClass);
+        $this->app['orm.em']->persist($Product);
+        $this->app['orm.em']->persist($ProductImage);
+        $this->app['orm.em']->flush();
+
+        echo " regist success \n";
+        echo " id "   . $data['code'] ."\n";
+        echo " name " . $data['name'] ."\n";
+        echo "\n";
+    }
+
+
+    /**
+     * チャットガールの詳細ページURLの取得
+     *
+     * @param unknown $girId チャットガールID
+     */
     private function getChatGirlDetailPageUrl( $girId )
     {
-    	return Constant::DMM_URL ."-/chat-room/=/character_id=". $girId . "/";
+        return Constant::DMM_URL ."-/chat-room/=/character_id=". $girId . "/";
     }
+
+
+    /**
+     * チャットガールの画像URLを取得
+     *
+     * @param unknown $girlId チャットガールID
+     */
+    private function getGirlImageURL( $girlId )
+    {
+        return Constant::CHAT_GIRL_IMG_URL . sprintf('%08d', $girlId ) ."/profile_l.jpg";
+    }
+
+
 
     /**
      * チャットガールガールがすでに登録されているかの確認
@@ -175,7 +270,7 @@ class ScrapingService
      **/
     private function getRegistredChatGirlId()
     {
-    	$productList= $this->app['eccube.repository.product']->getProductAndProductClass();
+        $productList= $this->app['eccube.repository.product']->getProductAndProductClass();
 
         $chatgirlIdHash = [];
         foreach( $productList as $Product ) {
@@ -199,7 +294,7 @@ class ScrapingService
         foreach ( $girlsList as $girlEle) {
 
             $idElement = $girlEle->attributes();
-            $girlData =  $this->getPropertyFromElement( $idElement );
+            $girlData =  $this->getPropertyFromElementFromAllGirlList( $idElement );
             if( $girlData !== false) {
                 $girlsListafterExtract[] = $girlData;
             }
@@ -221,6 +316,36 @@ class ScrapingService
             }
         }
         return false;
+    }
+
+    /**
+     * XML要素からプロパティを取得する
+     *
+     * @param $idElement DOM要素
+     * @return id/classを格納したクラス / false(取得失敗)
+     */
+    private function getPropertyFromElementFromAllGirlList( $idElement =[]) {
+
+        $girlData =[];
+        foreach ( $idElement as $attr => $property ) {
+            if( empty( $property )) next;
+
+            switch( $attr ) {
+                case 'id':
+                    $tmp = explode("_", $property );
+                    if( preg_match('/^\d*$/', $tmp[1]) === 1 ){
+                        $id = $tmp[1];
+                    }
+                    if ( !empty( $id)) $girlData['id'] = $id;
+                    break;
+            }
+        }
+
+        if( !empty( $girlData['id'])) {
+            return $girlData;
+        } else {
+            return false;
+        }
     }
 
     /**

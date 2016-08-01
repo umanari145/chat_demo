@@ -89,7 +89,7 @@ $(function(){
                 <div id="detail_image_box__slides" class="slides">
                     {% if Product.ProductImage|length > 0 %}
                         {% for ProductImage in Product.ProductImage %}
-                        <div id="detail_image_box__item--{{ loop.index }}"><img src="{{ app.config.image_save_urlpath }}/{{ ProductImage|no_image_product }}"/></div>
+                        <div id="detail_image_box__item--{{ loop.index }}"><img src="{{ ProductImage|no_image_product }}"/></div>
                         {% endfor %}
                     {% else %}
                         <div id="detail_image_box__item"><img src="{{ app.config.image_save_urlpath }}/{{ ''|no_image_product }}"/></div>
@@ -113,13 +113,6 @@ $(function(){
                         <hr>
                         <!--▲商品タグ-->
                     {% endif %}
-
-                    <!--▼商品コード-->
-                    <p id="detail_description_box__item_range_code" class="item_code">商品コード的なものがあれば： <span id="item_code_default">
-                        {{ Product.code_min }}
-                        {% if Product.code_min != Product.code_max %} ～ {{ Product.code_max }}{% endif %}
-                        </span> </p>
-                    <!--▲商品コード-->
 
                     <!-- ▼タグ▼ -->
                     <div id="relative_category_box" class="relative_cat">
